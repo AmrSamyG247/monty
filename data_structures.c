@@ -1,61 +1,44 @@
 #include "monty.h"
 
 /**
- * free_stack - frees a stack_t list.
- * @head: a pointer to the head
- *
- * Return: void
+ * run - run's specified function
+ * @cmd: data to pass to function
  */
-void free_stack(stack_t *head)
+void run(cmd_t *cmd)
 {
-	stack_t *next;
-
-	if (!head)
-		return;
-
-	next = head;
-	while (next)
-	{
-		head = next;
-		next = head->next;
-		free(head);
-	}
-}
-
-/**
- * get_opcode - gets the opcode and sets push_arg if it's push
- * @string: the line of code
- *
- * Return: the opcode
- */
-char *get_opcode(char *string)
-{
-	char *opcode;
-
-	/** grabs first argument **/
-	opcode = strtok(string, "\n\t ");
-	return (opcode);
-}
-
-/**
- * is_int - checks if a string is valid for atoi
- * @str: the string
- *
- * Return: 1 for true, 0 for false
- */
-int is_int(char *str)
-{
+	instruction_t funcs[] = {
+		{"push", push},
+		{"pall", pall},
+		{"pint", pint},
+		{"pop", pop},
+		{"swap", swap},
+		{"add", add},
+		{"nop", nop},
+		{"sub", sub},
+		{"div", divide},
+		{"mul", mul},
+		{"mod", mod},
+		{"pchar", pchar},
+		{"pstr", pstr},
+		{"rotl", rotl},
+		{"rotr", rotr},
+		{"stack", stack_mode},
+		{"queue", queue_mode},
+		{NULL, NULL}
+	};
 	int i = 0;
 
-	if (str == NULL)
-		return (0);
-	if (*str == '-')
-		i++;
-	for (; str[i]; i++)
+	while (funcs[i].opcode)
 	{
-		if (!isdigit(str[i]))
-			return (0);
+		if (strcmp(cmd->op, funcs[i].opcode) == 0)
+		{
+			funcs[i].f(cmd);
+			return;
+		}
+		i++;
 	}
-	return (1);
+
+	printf("L%d: unknown instruction %s\n", cmd->line_number, cmd->op);
+	exit(EXIT_FAILURE);
 }
 

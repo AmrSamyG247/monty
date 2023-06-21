@@ -1,24 +1,24 @@
 #include "monty.h"
+
 /**
- * stack - changes to LIFO
- * @stack: monty stack
- * @line_number: line number of file
+ * stack_mode - change to stack LIFO format
+ *
+ * @cmd: struct containing useful variables
  */
-void stack(stack_t **stack, unsigned int line_number)
+
+void stack_mode(cmd_t *cmd)
 {
-	UNUSED(stack);
-	UNUSED(line_number);
-	SQ = 1;
+	*cmd->mode = 0;
 }
+
 /**
- * queue - changes to FIFO
- * @stack: monty stack
- * @line_number: line number of file
+ * queue_mode - change to queue FIFO format
+ *
+ * @cmd: struct containing useful variables
  */
-void queue(stack_t **stack, unsigned int line_number)
+
+void queue_mode(cmd_t *cmd)
 {
-	UNUSED(stack);
-	UNUSED(line_number);
-	SQ = 0;
+	*cmd->mode = 1;
 }
 
