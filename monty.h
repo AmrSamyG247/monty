@@ -5,13 +5,10 @@
 #include <string.h>
 #include <stddef.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <limits.h>
 #include <ctype.h>
 
 #define UNUSED(x) (void)(x)
+#define LINE_MAX 1024
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
