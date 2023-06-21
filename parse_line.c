@@ -1,65 +1,52 @@
 #include "monty.h"
 
 /**
- * parse_line - parses through a line and returns the proper instruction
- * @line: the line
- *
- * Return: a pointer to the proper instruction
+ * parse - parses line of input into tokens
+ * @line: line of input to parse
+ * @cmd: arguments to send to function
+ * Return: 0 means to skip line, 1 means to continue
  */
-instruction_t *parse_line(char *line)
+int parse(char *line, cmd_t *cmd)
 {
-	char *opcode;
-	instruction_t *instruction;
+	char delims[] = " \t\r\n";
+	char *op, *arg;
+	int siz;
+	unsigned int ln = cmd->line_number;
 
-	opcode = get_opcode(line);
-	instruction = malloc(sizeof(*instruction));
-	if (instruction == NULL)
-	{
-		fprintf(stdout, "Error: malloc failed\n");
-		exit(EXIT_FAILURE);
+	if (line == NULL)
+		return (0);
+	op = strtok(line, delims);
+	if (op == NULL || op[0] == '#')
+		return (0);
+	if (strcmp(op, "stack") == 0)
+	{*cmd->mode = 0;
+		return (0);
 	}
-
-	instruction->opcode = opcode;
-	instruction->f = NULL;
-	/* opcode control statements */
-	if (instruction->opcode)
-	{
-		if (strcmp(instruction->opcode, "push") == 0)
-			instruction->f = push;
-		if (strcmp(instruction->opcode, "pall") == 0)
-			instruction->f = pall;
-		if (strcmp(instruction->opcode, "pint") == 0)
-			instruction->f = pint;
-		if (strcmp(instruction->opcode, "pop") == 0)
-			instruction->f = pop;
-		if (strcmp(instruction->opcode, "swap") == 0)
-			instruction->f = swap;
-		if (strcmp(instruction->opcode, "add") == 0)
-			instruction->f = add;
-		if (strcmp(instruction->opcode, "nop") == 0)
-			instruction->f = nop;
-		if (strcmp(instruction->opcode, "sub") == 0)
-			instruction->f = sub;
-		if (strcmp(instruction->opcode, "divide") == 0)
-			instruction->f = divide;
-		if (strcmp(instruction->opcode, "multiply") == 0)
-			instruction->f = multiply;
-		if (strcmp(instruction->opcode, "mod") == 0)
-			instruction->f = mod;
-		if (strcmp(instruction->opcode, "pchar") == 0)
-			instruction->f = pchar;
-		if (strcmp(instruction->opcode, "pstr") == 0)
-			instruction->f = pstr;
-		if (strcmp(instruction->opcode, "rotl") == 0)
-			instruction->f = rotl;
-		if (strcmp(instruction->opcode, "rotr") == 0)
-			instruction->f = rotr;
-		if (strcmp(instruction->opcode, "stack") == 0)
-			instruction->f = stack;
-		if (strcmp(instruction->opcode, "queue") == 0)
-			instruction->f = queue;
+	if (strcmp(op, "queue") == 0)
+	{*cmd->mode = 1;
+		return (0);
 	}
-
-	return (instruction);
+	if (strcmp(op, "push") == 0)
+	{arg = strtok(NULL, delims);
+		if (arg == NULL)
+		{printf("L%d: usage: push integer\n", ln);
+			exit(EXIT_FAILURE);
+		}
+		siz = strlen(arg);
+		while (siz--)
+		{
+			if (siz == 0 && arg[siz] == '-')
+				break;
+			if (arg[siz] > 57 || arg[siz] < 48)
+			{printf("L%d: usage: push integer\n", ln);
+				exit(EXIT_FAILURE);
+			}
+		}
+		cmd->arg = atoi(arg);
+		cmd->op = op;
+		return (1);
+	}
+	cmd->op = op;
+	return (1);
 }
 
