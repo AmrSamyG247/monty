@@ -1,63 +1,102 @@
 #include "monty.h"
 
 /**
- * add - adds the top two elements of the stack.
- * @stack: the stack
- * @line_number: the current line number
+ * pall - prints all elements of a doubly linked list
  *
- * Return: void
+ * @cmd: data specific variables for command
  */
-void add(stack_t **stack, unsigned int line_number)
+
+void pall(cmd_t *cmd)
 {
-	int summ;
+	stack_t *h = *cmd->head;
 
-	if ((*stack) == NULL || (*stack)->next == NULL)
+	if (h == NULL)
+		return;
+
+	while (h != NULL)
 	{
-		fprintf(stdout, "L%d: can't add, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
+		printf("%d\n", h->n);
+		h = h->next;
 	}
-
-	summ = (*stack)->next->n + (*stack)->n;
-	pop(stack, line_number);
-	(*stack)->n = summ;
 }
 
 /**
- * swap - swaps the top two elements of the stack.
- * @stack: the stack
- * @line_number: the current line number
+ * pint - prints the value at the top of the stack, followed by a new line
  *
- * Return: void
+ * @cmd: access to specific data from command struct
  */
-void swap(stack_t **stack, unsigned int line_number)
-{
-	int swapper;
 
-	if ((*stack) == NULL)
+void pint(cmd_t *cmd)
+{
+	stack_t *h = *cmd->head;
+
+	if (h == NULL)
 	{
-		fprintf(stdout, "L%d: can't swap, stack too short\n", line_number);
+		printf("L%d: can't pint, stack empty\n", cmd->line_number);
 		exit(EXIT_FAILURE);
 	}
-	if ((*stack)->next == NULL)
-	{
-		fprintf(stdout, "L%d: can't swap, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	swapper = (*stack)->n;
-	(*stack)->n = (*stack)->next->n;
-	(*stack)->next->n = swapper;
+
+	printf("%d\n", h->n);
 }
 
 /**
- * nop - The opcode nop doesn’t do anything.
- * @stack: the stack
- * @line_number: the current line number
+ * pchar - prints the char at the top of the stack, followed by a new line
  *
- * Return: void
+ * @cmd: access to specific data from command struct
  */
-void nop(stack_t **stack, unsigned int line_number)
+
+void pchar(cmd_t *cmd)
 {
-	UNUSED(stack);
-	UNUSED(line_number);
+	stack_t *h = *cmd->head;
+
+	if (h == NULL)
+	{
+		printf("L%d: can't pchar, stack empty\n", cmd->line_number);
+		exit(EXIT_FAILURE);
+	}
+
+	if (h->n < 0 || h->n > 127)
+	{
+		printf("L%d: can't pchar, value out of range\n", cmd->
+		       line_number);
+		exit(EXIT_FAILURE);
+	}
+
+	printf("%c\n", h->n);
+}
+
+/**
+ * pstr - prints the string starting at the top of the stack
+ *
+ * @cmd: data specific variables for command
+ */
+
+void pstr(cmd_t *cmd)
+{
+	stack_t *h = *cmd->head;
+
+	if (h == NULL)
+	{
+		putchar('\n');
+		return;
+	}
+
+	while (h != NULL && (h->n > 0 && h->n <= 127))
+	{
+		printf("%c", h->n);
+		h = h->next;
+	}
+	putchar('\n');
+}
+
+/**
+ * nop - does not do anything
+ *
+ * @cmd: access to useful variables from command struct
+ */
+
+void nop(cmd_t *cmd)
+{
+	(void)cmd;
 }
 

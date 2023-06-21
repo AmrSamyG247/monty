@@ -1,99 +1,157 @@
 #include "monty.h"
 
 /**
- * sub - subtracts the top two elements of the stack.
- * @stack: the stack
- * @line_number: the current line number
+ * add - adds the top two elements of the stack
  *
- * Return: void
+ * @cmd: access to specific data from command struct
  */
-void sub(stack_t **stack, unsigned int line_number)
-{
-	int diff;
 
-	if ((*stack) == NULL || (*stack)->next == NULL)
+void add(cmd_t *cmd)
+{
+	stack_t **h = cmd->head;
+	stack_t *node_1 = NULL;
+	stack_t *node_2 = NULL;
+	int sum = 0;
+
+	if (cmd == NULL || h == NULL || *h == NULL || (*h)->next == NULL)
 	{
-		fprintf(stdout, "L%d: can't sub, stack too short\n", line_number);
+		printf("L%d: can't add, stack too short\n", cmd->line_number);
 		exit(EXIT_FAILURE);
 	}
 
-	diff = (*stack)->next->n - (*stack)->n;
-	pop(stack, line_number);
-	(*stack)->n = diff;
+	node_1 = *h;
+	node_2 = (*h)->next;
+
+	sum = node_1->n + node_2->n;
+	node_2->n = sum;
+
+	pop(cmd);
 }
 
 /**
- * divide - divides the top two elements of the stack.
- * @stack: the stack
- * @line_number: the current line number
+ * sub - subtracts the top element of the stack from the second top element
+ * of the stack
  *
- * Return: void
+ * @cmd: access to useful variables from command struct
  */
-void divide(stack_t **stack, unsigned int line_number)
-{
-	int divs;
 
-	if ((*stack) == NULL || (*stack)->next == NULL)
+void sub(cmd_t *cmd)
+{
+	stack_t **h = cmd->head;
+	stack_t *node_1 = NULL;
+	stack_t *node_2 = NULL;
+	int diff = 0;
+
+	if (h == NULL || *h == NULL || (*h)->next == NULL)
 	{
-		fprintf(stdout, "L%d: can't div, stack too short\n", line_number);
+		printf("L%d: can't sub, stack too short\n", cmd->line_number);
 		exit(EXIT_FAILURE);
 	}
-	if ((*stack)->n == 0)
-	{
-		fprintf(stdout, "L%d: division by zero\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	divs = (*stack)->next->n / (*stack)->n;
-	pop(stack, line_number);
-	(*stack)->n = divs;
+
+	node_1 = *h;
+	node_2 = (*h)->next;
+
+	diff = node_2->n - node_1->n;
+	node_2->n = diff;
+
+	pop(cmd);
 }
 
 /**
- * multiply - multiplies the top two elements of the stack.
- * @stack: the stack
- * @line_number: the current line number
+ * divide - divides second top element of the stack with the top element
+ * of the stack
  *
- * Return: void
+ * @cmd: access to useful variables from command struct
  */
-void multiply(stack_t **stack, unsigned int line_number)
-{
-	int mul;
 
-	if ((*stack) == NULL || (*stack)->next == NULL)
+void divide(cmd_t *cmd)
+{
+	stack_t **h = cmd->head;
+	stack_t *node_1 = NULL;
+	stack_t *node_2 = NULL;
+	int quotient;
+
+	if (h == NULL || *h == NULL || (*h)->next == NULL)
 	{
-		fprintf(stdout, "L%d: can't mul, stack too short\n", line_number);
+		printf("L%d: can't div, stack too short\n", cmd->line_number);
 		exit(EXIT_FAILURE);
 	}
 
-	mul = (*stack)->next->n * (*stack)->n;
-	pop(stack, line_number);
-	(*stack)->n = mul;
+	node_1 = *h;
+	node_2 = (*h)->next;
+
+	if (node_1->n == 0)
+	{
+		printf("L%d: division by zero\n", cmd->line_number);
+		exit(EXIT_FAILURE);
+	}
+
+	quotient = node_2->n / node_1->n;
+	node_2->n = quotient;
+	pop(cmd);
 }
 
 /**
- * mod - computes the modulus of the top two elements of the stack.
- * @stack: the stack
- * @line_number: the current line number
+ * mul - multiplies the second top element of the stack with the top element
+ * of the stack
  *
- * Return: void
+ * @cmd: access to useful variables from command struct
  */
-void mod(stack_t **stack, unsigned int line_number)
+
+void mul(cmd_t *cmd)
 {
-	int modd;
+	stack_t **h = cmd->head;
+	stack_t *node_1 = NULL;
+	stack_t *node_2 = NULL;
+	int product;
 
-	if ((*stack) == NULL || (*stack)->next == NULL)
+	if (h == NULL || *h == NULL || (*h)->next == NULL)
 	{
-		fprintf(stdout, "L%d: can't mod, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	if ((*stack)->n == 0)
-	{
-		fprintf(stdout, "L%d: division by zero\n", line_number);
+		printf("L%d: can't mul, stack too short\n", cmd->line_number);
 		exit(EXIT_FAILURE);
 	}
 
-	modd = (*stack)->next->n % (*stack)->n;
-	pop(stack, line_number);
-	(*stack)->n = modd;
+	node_1 = *h;
+	node_2 = (*h)->next;
+
+	product = node_2->n * node_1->n;
+	node_2->n = product;
+
+	pop(cmd);
+}
+
+/**
+ * mod - computes the rest of the division of the second top element
+ * of the stack by the top element of the stack
+ *
+ * @cmd: access to useful variables from command struct
+ */
+
+void mod(cmd_t *cmd)
+{
+	stack_t **h = cmd->head;
+	stack_t *node_1 = NULL;
+	stack_t *node_2 = NULL;
+	int rem;
+
+	if (h == NULL || *h == NULL || (*h)->next == NULL)
+	{
+		printf("L%d: can't mod, stack too short\n", cmd->line_number);
+		exit(EXIT_FAILURE);
+	}
+
+	node_1 = *h;
+	node_2 = (*h)->next;
+
+	if (node_1->n == 0)
+	{
+		printf("L%d: division by zero\n", cmd->line_number);
+		exit(EXIT_FAILURE);
+	}
+
+	rem = node_2->n % node_1->n;
+	node_2->n = rem;
+
+	pop(cmd);
 }
 
