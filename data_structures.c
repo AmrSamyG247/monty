@@ -1,44 +1,18 @@
 #include "monty.h"
 
 /**
- * run - run's specified function
- * @cmd: data to pass to function
+ * print_stack - print the elements of a doubly linked list
+ * @h: a pointer to the head node of the list
+ * Return: the number of nodes
  */
-void run(cmd_t *cmd)
+size_t print_stack(const stack_t *h)
 {
-	instruction_t funcs[] = {
-		{"push", push},
-		{"pall", pall},
-		{"pint", pint},
-		{"pop", pop},
-		{"swap", swap},
-		{"add", add},
-		{"nop", nop},
-		{"sub", sub},
-		{"div", divide},
-		{"mul", mul},
-		{"mod", mod},
-		{"pchar", pchar},
-		{"pstr", pstr},
-		{"rotl", rotl},
-		{"rotr", rotr},
-		{"stack", stack_mode},
-		{"queue", queue_mode},
-		{NULL, NULL}
-	};
-	int i = 0;
+	int i;
 
-	while (funcs[i].opcode)
-	{
-		if (strcmp(cmd->op, funcs[i].opcode) == 0)
-		{
-			funcs[i].f(cmd);
-			return;
-		}
-		i++;
-	}
-
-	printf("L%d: unknown instruction %s\n", cmd->line_number, cmd->op);
-	exit(EXIT_FAILURE);
+	if (h == NULL)
+		return (0);
+	for (i = 0; h; i++, h = h->next)
+		printf("%d\n", h->n);
+	return (i);
 }
 

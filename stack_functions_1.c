@@ -1,182 +1,99 @@
 #include "monty.h"
 
 /**
- * push - adds a new node at the beginning of a stack_t list,
- * or in queue mode, add node to end
- *
- * @cmd: access specific data for command
- * Return: address of new node, or NULL if failed
- */
-
-void push(cmd_t *cmd)
+ * push - pushes an element onto the stack
+ * @stack: pointer to a pointer to a stack
+ * @line_number: line number
+ * Return: No Value
+*/
+void push(stack_t **stack, unsigned int line_number)
 {
-	stack_t **h = cmd->head;
-	stack_t *new = NULL;
-	stack_t *temp = NULL;
+	stack_t *newNode;
 
-	if (h == NULL)
-	{printf("L%d: usage: push integer\n", cmd->line_number);
-		exit(EXIT_FAILURE);
-	}
-	new = malloc(sizeof(stack_t));
-	if (new == NULL)
-		exit(EXIT_FAILURE);
+	(void)line_number;
+	newNode = malloc(sizeof(stack_t));
 
-	if (*cmd->mode == 1)
-	{   new->n = cmd->arg;
-		new->next = NULL;
-		new->prev = NULL;
-		if (*h == NULL)
-		{  *h = new;
-			return;
-		}
-		temp = *h;
-		while (temp->next != NULL)
-			temp = temp->next;
-		temp->next = new;
-		new->prev = temp;
-		return;
-	}
-	if (*h == NULL)
+	if (!newNode)
 	{
-		new->n = cmd->arg;
-		new->next = *h;
-		new->prev = NULL;
-		*h = new;
-		return;
+		fprintf(stderr, "Error: malloc failed\n");
+		free_stack(*stack);
+		free(glo->ipt);
+		exit(EXIT_FAILURE);
 	}
-	(*h)->prev = new;
-	new->n = cmd->arg;
-	new->next = *h;
-	new->prev = NULL;
-	*h = new;
+	newNode->n = glo->iptint;
+	newNode->prev = NULL;
+	newNode->next = *stack;
+
+	if (*stack)
+		(*stack)->prev = newNode;
+	*stack = newNode;
 }
 
 /**
- * pop - remove top element of the stack
- *
- * @cmd: access to specific data from command struct
- */
-
-void pop(cmd_t *cmd)
+ * pall - pushes an element onto the stack
+ * @stack: pointer to a pointer to a stack
+ * @line_number: line number
+ * Return: No Value
+*/
+void pall(stack_t **stack, unsigned int line_number)
 {
-	stack_t **h = cmd->head;
-	stack_t *current = NULL;
+	(void)line_number;
+	print_stack(*stack);
+}
 
-	if (*h == NULL || h == NULL)
+/**
+ * pint - prints the top value of the stack
+ * @stack: pointer to a pointer to a stack
+ * @line_number: line number
+ * Return: No Value
+*/
+void pint(stack_t **stack, unsigned int line_number)
+{
+	if (stack == NULL || *stack == NULL)
 	{
-		printf("L%d: can't pop an empty stack\n", cmd->line_number);
+		free(glo->ipt), free(glo->tokop), free(glo);
+		fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
 		exit(EXIT_FAILURE);
 	}
-
-	current = *h;
-	*h = (*h)->next;
-	free(current);
+	printf("%d\n", (*stack)->n);
 }
 
 /**
- * swap - swaps the top two elements of the stack
- *
- * @cmd: access to specific data from command struct
- */
-
-void swap(cmd_t *cmd)
+ * pop - deletes the top element of the stack
+ * @stack: pointer to a pointer to a stack
+ * @line_number: line number
+ * Return: No Value
+*/
+void pop(stack_t **stack, unsigned int line_number)
 {
-	stack_t **h = cmd->head;
-	stack_t *first = NULL;
-	stack_t *second = NULL;
-	stack_t *third = NULL;
-
-	if (*h == NULL || h == NULL || (*h)->next == NULL)
+	if (stack == NULL || *stack == NULL)
 	{
-		printf("L%d: can't swap, stack too short\n", cmd->line_number);
+		free(glo->ipt), free(glo->tokop), free(glo);
+		fprintf(stderr, "L%u: can't pop an empty stack\n", line_number);
 		exit(EXIT_FAILURE);
 	}
-	first = *h;
-	second = (*h)->next;
-	third = second->next;
-
-	first->next = second->next;
-	second->next = first;
-	if (third)
-		third->prev = first;
-	first->prev = second;
-	second->prev = NULL;
-	*h = second;
+	if ((*stack)->next)
+	{
+		*stack = (*stack)->next;
+		free((*stack)->prev);
+		(*stack)->prev = NULL;
+	}
+	else
+	{
+		free(*stack);
+		*stack = NULL;
+	}
 }
 
 /**
- * rotl - rotates the stack to the top
- *
- * @cmd: access to specific data from command struct
- */
-
-void rotl(cmd_t *cmd)
+ * nop - no effect
+ * @stack: pointer to a pointer to a stack
+ * @line_number: line number
+ * Return: No Value
+*/
+void nop(stack_t **stack, unsigned int line_number)
 {
-	stack_t **h = cmd->head;
-	stack_t *first = NULL;
-	stack_t *second = NULL;
-	stack_t *last = NULL;
-
-	if (h == NULL || *h == NULL || (*h)->next == NULL)
-		return;
-
-	if ((*h)->next->next == NULL)
-	{
-		swap(cmd);
-		return;
-	}
-
-	first = *h;
-	second = (*h)->next;
-	last = *h;
-
-	while (last->next != NULL)
-		last = last->next;
-
-	first->next = last->next;
-	first->prev = last;
-	last->next = first;
-	second->prev = NULL;
-	*h = second;
-}
-
-/**
- * rotr - rotates the stack to the bottom
- *
- * @cmd: access to specific data from command struct
- */
-
-void rotr(cmd_t *cmd)
-{
-	stack_t **h = cmd->head;
-	stack_t *first = NULL;
-	stack_t *second = NULL;
-	stack_t *last = NULL;
-
-	if (h == NULL || *h == NULL || (*h)->next == NULL)
-		return;
-
-	if ((*h)->next->next == NULL)
-	{
-		swap(cmd);
-		return;
-	}
-
-	first = *h;
-	second = *h;
-	last = *h;
-
-	while (last->next != NULL)
-		last = last->next;
-
-	while (second->next != last)
-		second = second->next;
-
-	last->next = first;
-	last->prev = first->prev;
-	first->prev = last;
-	second->next = NULL;
-	*h = last;
+	(void)stack;
+	(void)line_number;
 }
 

@@ -1,157 +1,76 @@
 #include "monty.h"
 
 /**
- * add - adds the top two elements of the stack
- *
- * @cmd: access to specific data from command struct
+ * mod - divides top two elements in the stack
+ * @stack: pointer to a pointer to the top of the stack
+ * @line_number: line number
+ * Return: No Value
  */
-
-void add(cmd_t *cmd)
+void mod(stack_t **stack, unsigned int line_number)
 {
-	stack_t **h = cmd->head;
-	stack_t *node_1 = NULL;
-	stack_t *node_2 = NULL;
-	int sum = 0;
-
-	if (cmd == NULL || h == NULL || *h == NULL || (*h)->next == NULL)
+	if (*stack == NULL || (*stack)->next == NULL)
 	{
-		printf("L%d: can't add, stack too short\n", cmd->line_number);
+		free(glo->ipt), free(glo->tokop), free(glo);
+		if (*stack)
+			free_stack(*stack);
+		fprintf(stderr, "L%u: can't mod, stack too short\n", line_number);
 		exit(EXIT_FAILURE);
 	}
-
-	node_1 = *h;
-	node_2 = (*h)->next;
-
-	sum = node_1->n + node_2->n;
-	node_2->n = sum;
-
-	pop(cmd);
+	else if ((*stack)->n == 0)
+	{
+		free(glo->ipt), free(glo->tokop), free(glo);
+		if (*stack)
+			free_stack(*stack);
+		fprintf(stderr, "L%u: division by zero\n", line_number);
+		exit(EXIT_FAILURE);
+	}
+	*stack = (*stack)->next;
+	(*stack)->n = (*stack)->n % (*stack)->prev->n;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }
 
 /**
- * sub - subtracts the top element of the stack from the second top element
- * of the stack
- *
- * @cmd: access to useful variables from command struct
+ * pchar - prints character based on ascii value at top of stack
+ * @stack: pointer to pointer to first node of stack"
+ * @line_number: line number
+ * Return: No Value
  */
-
-void sub(cmd_t *cmd)
+void pchar(stack_t **stack, unsigned int line_number)
 {
-	stack_t **h = cmd->head;
-	stack_t *node_1 = NULL;
-	stack_t *node_2 = NULL;
-	int diff = 0;
-
-	if (h == NULL || *h == NULL || (*h)->next == NULL)
+	if (stack == NULL || *stack == NULL)
 	{
-		printf("L%d: can't sub, stack too short\n", cmd->line_number);
+		fprintf(stderr, "L%u: can't pchar, stack empty\n", line_number);
 		exit(EXIT_FAILURE);
 	}
-
-	node_1 = *h;
-	node_2 = (*h)->next;
-
-	diff = node_2->n - node_1->n;
-	node_2->n = diff;
-
-	pop(cmd);
+	else if (((*stack)->n > 127) || ((*stack)->n < 0))
+	{
+		fprintf(stderr, "L%u: can't pchar, value out of range\n", line_number);
+		exit(EXIT_FAILURE);
+	}
+	printf("%c\n", (*stack)->n);
 }
 
 /**
- * divide - divides second top element of the stack with the top element
- * of the stack
- *
- * @cmd: access to useful variables from command struct
+ * pstr - prints string of ascii values defined by nodes in LL
+ * @stack: a pointer to a pointer to the first node in the stack
+ * @line_number: line number
+ * Return: No Value
  */
-
-void divide(cmd_t *cmd)
+void pstr(stack_t **stack, unsigned int line_number)
 {
-	stack_t **h = cmd->head;
-	stack_t *node_1 = NULL;
-	stack_t *node_2 = NULL;
-	int quotient;
+	stack_t *tmp;
 
-	if (h == NULL || *h == NULL || (*h)->next == NULL)
+	(void)line_number;
+	for (tmp = *stack; tmp; tmp = tmp->next)
 	{
-		printf("L%d: can't div, stack too short\n", cmd->line_number);
-		exit(EXIT_FAILURE);
+		if (tmp->n == 0)
+			break;
+		else if ((tmp->n > 127) || (tmp->n < 0))
+			break;
+		else
+			printf("%c", tmp->n);
 	}
-
-	node_1 = *h;
-	node_2 = (*h)->next;
-
-	if (node_1->n == 0)
-	{
-		printf("L%d: division by zero\n", cmd->line_number);
-		exit(EXIT_FAILURE);
-	}
-
-	quotient = node_2->n / node_1->n;
-	node_2->n = quotient;
-	pop(cmd);
-}
-
-/**
- * mul - multiplies the second top element of the stack with the top element
- * of the stack
- *
- * @cmd: access to useful variables from command struct
- */
-
-void mul(cmd_t *cmd)
-{
-	stack_t **h = cmd->head;
-	stack_t *node_1 = NULL;
-	stack_t *node_2 = NULL;
-	int product;
-
-	if (h == NULL || *h == NULL || (*h)->next == NULL)
-	{
-		printf("L%d: can't mul, stack too short\n", cmd->line_number);
-		exit(EXIT_FAILURE);
-	}
-
-	node_1 = *h;
-	node_2 = (*h)->next;
-
-	product = node_2->n * node_1->n;
-	node_2->n = product;
-
-	pop(cmd);
-}
-
-/**
- * mod - computes the rest of the division of the second top element
- * of the stack by the top element of the stack
- *
- * @cmd: access to useful variables from command struct
- */
-
-void mod(cmd_t *cmd)
-{
-	stack_t **h = cmd->head;
-	stack_t *node_1 = NULL;
-	stack_t *node_2 = NULL;
-	int rem;
-
-	if (h == NULL || *h == NULL || (*h)->next == NULL)
-	{
-		printf("L%d: can't mod, stack too short\n", cmd->line_number);
-		exit(EXIT_FAILURE);
-	}
-
-	node_1 = *h;
-	node_2 = (*h)->next;
-
-	if (node_1->n == 0)
-	{
-		printf("L%d: division by zero\n", cmd->line_number);
-		exit(EXIT_FAILURE);
-	}
-
-	rem = node_2->n % node_1->n;
-	node_2->n = rem;
-
-	pop(cmd);
+	printf("\n");
 }
 

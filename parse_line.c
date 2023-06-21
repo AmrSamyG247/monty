@@ -1,52 +1,75 @@
 #include "monty.h"
 
 /**
- * parse - parses line of input into tokens
- * @line: line of input to parse
- * @cmd: arguments to send to function
- * Return: 0 means to skip line, 1 means to continue
+ * read_file - reads file contents into buffer
+ * @fd: the file descriptor for a certain file
+ * Return: a pointer to the buffer created
  */
-int parse(char *line, cmd_t *cmd)
+char *read_file(int fd)
 {
-	char delims[] = " \t\r\n";
-	char *op, *arg;
-	int siz;
-	unsigned int ln = cmd->line_number;
+	int bufsize = 64, rd;
+	char *ret, *tmp;
 
-	if (line == NULL)
-		return (0);
-	op = strtok(line, delims);
-	if (op == NULL || op[0] == '#')
-		return (0);
-	if (strcmp(op, "stack") == 0)
-	{*cmd->mode = 0;
-		return (0);
+	ret = malloc(sizeof(char) * bufsize);
+	if (ret == NULL)
+		return (NULL);
+	ret = memset(ret, 0, bufsize);
+	rd = read(fd, ret, bufsize);
+	if (rd == -1)
+	{
+		free(ret);
+		return (NULL);
 	}
-	if (strcmp(op, "queue") == 0)
-	{*cmd->mode = 1;
-		return (0);
-	}
-	if (strcmp(op, "push") == 0)
-	{arg = strtok(NULL, delims);
-		if (arg == NULL)
-		{printf("L%d: usage: push integer\n", ln);
-			exit(EXIT_FAILURE);
-		}
-		siz = strlen(arg);
-		while (siz--)
+	while (rd == bufsize)
+	{
+		bufsize += bufsize;
+		tmp = malloc(sizeof(char) * bufsize);
+		if (tmp == NULL)
 		{
-			if (siz == 0 && arg[siz] == '-')
-				break;
-			if (arg[siz] > 57 || arg[siz] < 48)
-			{printf("L%d: usage: push integer\n", ln);
-				exit(EXIT_FAILURE);
-			}
+			free(ret);
+			return (NULL);
 		}
-		cmd->arg = atoi(arg);
-		cmd->op = op;
-		return (1);
+		tmp = memset(tmp, 0, bufsize);
+		strncpy(tmp, ret, (bufsize / 2));
+		free(ret);
+		ret = tmp;
+		rd += read(fd, ret + bufsize / 2, bufsize / 2);
+		if (rd == -1)
+			return (NULL);
 	}
-	cmd->op = op;
-	return (1);
+	return (ret);
+}
+
+/**
+ * push_check - checks to see if push is being used correctly
+ * @toklenx: the index at which the input for push begins
+ * @tok: a pointer to the token being analyzed
+ * @stack: a pointer to the first element of the stack
+ * @lnum: the line number at the time
+ * Return: No Value
+ */
+void push_check(int toklenx, char *tok, stack_t *stack, int lnum)
+{
+	for (; tok[toklenx] != ' ' && tok[toklenx]; toklenx++)
+		if ((!isdigit(tok[toklenx]) && tok[toklenx] != '-'))
+			free_exit(stack, lnum, "L%u: usage: push integer\n");
+}
+
+/**
+ * comment_check - checks for comments and ignores them
+ * @lnum: the address of lnum to be changed in this function
+ * @i: the index which the token is moved to to avoid spaces
+ * @tok: a pointer to a pointer to the token to change it
+ * Return: a boolean value for true or false
+ */
+bool comment_check(unsigned int *lnum, int i, char **tok)
+{
+	if ((*tok)[i] == '#')
+	{
+		*lnum += nl_count(*tok) + 1;
+		*tok = strtok(NULL, "\n");
+		return (true);
+	}
+	return (false);
 }
 

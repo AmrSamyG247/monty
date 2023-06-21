@@ -1,47 +1,52 @@
-#define _GNU_SOURCE
-#include <stdio.h>
 #include "monty.h"
 
+glo_t *glo = NULL;
+
 /**
- * main - entry point
- * @argc: number of args
- * @argv: filenames
- * Return: 0 or 1
+ * main - Entry point for program
+ * @argc: the number of argument provided to the program
+ * @argv: a pointer to pointers to the different arguments provided
+ * Return: 0 (Always Success)
  */
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-	FILE *fd;
-	char *line;
-	size_t len = 0;
-	ssize_t read;
-	stack_t *head = NULL;
-	stack_t *tail = NULL;
-	int mode = 0;
-	unsigned int line_number = 1;
+	int fd1, res;
+	stack_t *stack = NULL;
 
 	if (argc != 2)
 	{
-		printf("USAGE: monty file\n");
+		fprintf(stderr, "USAGE: monty file\n");
 		exit(EXIT_FAILURE);
 	}
-
-	fd = fopen(argv[1], "r");
-
-	if (fd == NULL)
+	fd1 = open(argv[1], O_RDONLY);
+	if (fd1 == -1)
 	{
-		printf("Error: Can't open file %s\n", argv[1]);
+		fprintf(stderr, "Error: Can't open file %s\n", argv[1]);
 		exit(EXIT_FAILURE);
 	}
-
-	while ((read = getline(&line, &len, fd)) != -1)
+	glo = malloc(sizeof(glo_t));
+	if (glo == NULL)
 	{
-		eval(line, &head, &tail, &mode, line_number);
-		line_number++;
+		close(fd1);
+		fprintf(stderr, "Error: malloc failed\n");
+		exit(EXIT_FAILURE);
 	}
-
-	fclose(fd);
-	free(line);
-	free_list(&head);
-	return (EXIT_SUCCESS);
+	glo->ipt = NULL, glo->tokop = NULL;
+	glo->iptint = 0;
+	glo->ipt = read_file(fd1);
+	res = bc_exe(glo->ipt, &stack);
+	if (res == 0)
+	{
+		free(glo->ipt);
+		free_stack(stack);
+		free(glo);
+		fprintf(stderr, "Error: malloc failed\n");
+		exit(EXIT_FAILURE);
+	}
+	close(fd1);
+	free_stack(stack);
+	free(glo->ipt);
+	free(glo);
+	return (0);
 }
 

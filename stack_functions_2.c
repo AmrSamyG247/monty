@@ -1,102 +1,117 @@
 #include "monty.h"
 
 /**
- * pall - prints all elements of a doubly linked list
- *
- * @cmd: data specific variables for command
+ * swap - swaps the top two elements of the stack
+ * @stack: pointer to a pointer to a stack
+ * @line_number: line number
+ * Return: No Value
  */
-
-void pall(cmd_t *cmd)
+void swap(stack_t **stack, unsigned int line_number)
 {
-	stack_t *h = *cmd->head;
+	int tmpint;
 
-	if (h == NULL)
-		return;
-
-	while (h != NULL)
+	if (*stack == NULL || (*stack)->next == NULL)
 	{
-		printf("%d\n", h->n);
-		h = h->next;
-	}
-}
-
-/**
- * pint - prints the value at the top of the stack, followed by a new line
- *
- * @cmd: access to specific data from command struct
- */
-
-void pint(cmd_t *cmd)
-{
-	stack_t *h = *cmd->head;
-
-	if (h == NULL)
-	{
-		printf("L%d: can't pint, stack empty\n", cmd->line_number);
+		free(glo->ipt), free(glo->tokop), free(glo), free_stack(*stack);
+		fprintf(stderr, "L%u: can't swap, stack too short\n", line_number);
 		exit(EXIT_FAILURE);
 	}
-
-	printf("%d\n", h->n);
+	tmpint = (*stack)->n;
+	(*stack)->n = (*stack)->next->n;
+	(*stack)->next->n = tmpint;
 }
 
 /**
- * pchar - prints the char at the top of the stack, followed by a new line
- *
- * @cmd: access to specific data from command struct
+ * add - adds the top two elements of the stack and pops the first one
+ * @stack: pointer to a pointer to a stack
+ * @line_number: line number
+ * Return: No Value
  */
-
-void pchar(cmd_t *cmd)
+void add(stack_t **stack, unsigned int line_number)
 {
-	stack_t *h = *cmd->head;
-
-	if (h == NULL)
+	if (*stack == NULL || (*stack)->next == NULL)
 	{
-		printf("L%d: can't pchar, stack empty\n", cmd->line_number);
+		free(glo->ipt), free(glo->tokop), free(glo), free_stack(*stack);
+		fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
 		exit(EXIT_FAILURE);
 	}
+	*stack = (*stack)->next;
+	(*stack)->n = (*stack)->n + (*stack)->prev->n;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
+}
 
-	if (h->n < 0 || h->n > 127)
+/**
+ * sub - subtracts top two elements in the stack
+ * @stack: stack
+ * @line_number: line number
+ * Return: nothing
+ */
+void sub(stack_t **stack, unsigned int line_number)
+{
+	if (*stack == NULL || (*stack)->next == NULL)
 	{
-		printf("L%d: can't pchar, value out of range\n", cmd->
-		       line_number);
+		free(glo->ipt), free(glo->tokop), free(glo);
+		if (*stack)
+			free_stack(*stack);
+		fprintf(stderr, "L%u: can't sub, stack too short\n", line_number);
 		exit(EXIT_FAILURE);
 	}
-
-	printf("%c\n", h->n);
+	*stack = (*stack)->next;
+	(*stack)->n = (*stack)->n - (*stack)->prev->n;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }
 
 /**
- * pstr - prints the string starting at the top of the stack
- *
- * @cmd: data specific variables for command
+ * _div - divides top two elements in the stack
+ * @stack: pointer to a pointer to the top of the stack
+ * @line_number: line number
+ * Return: No Value
  */
-
-void pstr(cmd_t *cmd)
+void _div(stack_t **stack, unsigned int line_number)
 {
-	stack_t *h = *cmd->head;
-
-	if (h == NULL)
+	if (*stack == NULL || (*stack)->next == NULL)
 	{
-		putchar('\n');
-		return;
+		free(glo->ipt), free(glo->tokop), free(glo);
+		if (*stack)
+			free_stack(*stack);
+		fprintf(stderr, "L%u: can't div, stack too short\n", line_number);
+		exit(EXIT_FAILURE);
 	}
-
-	while (h != NULL && (h->n > 0 && h->n <= 127))
+	else if ((*stack)->n == 0)
 	{
-		printf("%c", h->n);
-		h = h->next;
+		free(glo->ipt), free(glo->tokop), free(glo);
+		if (*stack)
+			free_stack(*stack);
+		fprintf(stderr, "L%u: division by zero\n", line_number);
+		exit(EXIT_FAILURE);
 	}
-	putchar('\n');
+	*stack = (*stack)->next;
+	(*stack)->n = (*stack)->n / (*stack)->prev->n;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }
 
 /**
- * nop - does not do anything
- *
- * @cmd: access to useful variables from command struct
+ * mul - multiplies top two elements in the stack
+ * @stack: pointer to a pointer to the top of the stack
+ * @line_number: line number
+ * Return: No Value
  */
-
-void nop(cmd_t *cmd)
+void mul(stack_t **stack, unsigned int line_number)
 {
-	(void)cmd;
+	if (*stack == NULL || (*stack)->next == NULL)
+	{
+		free(glo->ipt), free(glo->tokop), free(glo);
+		if (*stack)
+			free_stack(*stack);
+		fprintf(stderr, "L%u: can't mul, stack too short\n", line_number);
+		exit(EXIT_FAILURE);
+	}
+	*stack = (*stack)->next;
+	(*stack)->n = (*stack)->n * (*stack)->prev->n;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }
 

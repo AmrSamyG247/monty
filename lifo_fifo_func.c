@@ -1,24 +1,20 @@
 #include "monty.h"
 
 /**
- * stack_mode - change to stack LIFO format
- *
- * @cmd: struct containing useful variables
+ * free_stack - frees a doubly linked list
+ * @head: a pointer to the first node in the list
+ * Return: No Value
  */
-
-void stack_mode(cmd_t *cmd)
+void free_stack(stack_t *head)
 {
-	*cmd->mode = 0;
-}
-
-/**
- * queue_mode - change to queue FIFO format
- *
- * @cmd: struct containing useful variables
- */
-
-void queue_mode(cmd_t *cmd)
-{
-	*cmd->mode = 1;
+	if (head == NULL)
+		return;
+	for (; head->next; head = head->next)
+	{
+		if (head->prev)
+			free(head->prev);
+	}
+	free(head->prev);
+	free(head);
 }
 
