@@ -77,20 +77,23 @@ void mul(stack_t **stack, unsigned int line_number);
 void mod(stack_t **stack, unsigned int line_number);
 void pchar(stack_t **stack, unsigned int line_number);
 void pstr(stack_t **stack, unsigned int line_number);
+void rotl(stack_t **stack, unsigned int line_number);
+void rotr(stack_t **stack, unsigned int line_number);
 
 /*******stack_operations_2*******/
-char *read_file(int fd);
-void push_check(int toklenx, char *tok, stack_t *stack, int lnum);
-bool comment_check(unsigned int *lnum, int i, char **tok);
-
-/*******lifo_fifo_func*******/
 int bc_exe(char *ipt, stack_t **stack);
-void free_stack(stack_t *head);
 size_t print_stack(const stack_t *h);
 void free_exit_ui(stack_t *stack, unsigned int lnum, char *mssg);
 void free_exit(stack_t *stack, unsigned int lnum, char *mssg);
 int nl_count(char *tok);
 char *tokop_init(char *tok, int tok_offset);
+
+/*******lifo_fifo_func and data_structure*******/
+void free_stack(stack_t *head);
+char *read_file(int fd);
+void push_check(int toklenx, char *tok, stack_t *stack, int lnum);
+bool comment_check(unsigned int *lnum, int i, char **tok);
+void queue(stack_t **stack, unsigned int line_n);
 
 #endif
 
